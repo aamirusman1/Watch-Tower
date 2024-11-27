@@ -49,6 +49,12 @@ import routes from "routes";
 // Material Dashboard 2 PRO React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
+//RuleDefinition
+import RulDefDataTables from "layouts/ruleDefinition/data-tables";
+
+//Router
+import { BrowserRouter as Router } from "react-router-dom";
+
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
@@ -167,7 +173,12 @@ export default function App() {
         {layout === "vr" && <Configurator />}
         <Routes>
           {getRoutes(routes)}
-          <Route path="*" element={<Navigate to="/dashboards/analytics" />} />
+          <Route path="/" element={<Navigate to="/dashboards/analytics" />} />
+          <Route
+            path="/ruleDefinition/data-tables/:ruleId/:auditType"
+            element={<RulDefDataTables />}
+          />
+          {/* <Route path="*" element={<Navigate to="/dashboards/analytics" />} /> */}
         </Routes>
       </ThemeProvider>
     </CacheProvider>
@@ -191,7 +202,12 @@ export default function App() {
       {layout === "vr" && <Configurator />}
       <Routes>
         {getRoutes(routes)}
-        <Route path="*" element={<Navigate to="/dashboards/analytics" />} />
+        <Route path="/" element={<Navigate to="/dashboards/analytics" />} />
+        <Route
+          path="/ruleDefinition/data-tables/:ruleId/:auditType"
+          element={<RulDefDataTables />}
+        />
+        {/* <Route path="*" element={<Navigate to="/dashboards/analytics" />} /> */}
       </Routes>
     </ThemeProvider>
   );

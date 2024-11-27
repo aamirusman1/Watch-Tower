@@ -52,8 +52,8 @@ import Charts from "layouts/pages/charts";
 import Notifications from "layouts/pages/notifications";
 import Kanban from "layouts/applications/kanban";
 import Wizard from "layouts/applications/wizard";
-//import DataTables from "layouts/rules/data-tables";
-import DataTables from "layouts/ruleDefinition/data-tables";
+import DataTables from "layouts/rules/data-tables";
+import RulDefDataTables from "layouts/ruleDefinition/data-tables";
 import Calendar from "layouts/applications/calendar";
 import NewProduct from "layouts/ecommerce/products/new-product";
 import EditProduct from "layouts/ecommerce/products/edit-product";
@@ -229,17 +229,17 @@ const routes = [
     collapse: [
       {
         name: "Rules",
-        key: "rules",
+        key: "data-tables",
         route: "/rules/data-tables", //inside layout folder
         component: <DataTables />,
       },
 
-      {
-        name: "Rule Definitions",
-        key: "data-tables",
-        route: "/ruleDefinition/data-tables", //inside layout folder
-        component: <DataTables />,
-      },
+      // {
+      //   name: "Rule Definitions",
+      //   key: "data-table",
+      //   route: "/ruleDefinition/data-tables", //inside layout folder
+      //   component: <RulDefDataTables />,
+      // },
     ],
   },
   {

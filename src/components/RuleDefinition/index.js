@@ -14,9 +14,8 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 import MDButton from "components/MDButton";
-import { useParams } from "react-router-dom";
 
-function RulDefDataTables() {
+function RuleDefinition() {
   // State to store the data from the API
   const [dataTableData, setDataTableData] = useState({
     columns: [
@@ -45,13 +44,11 @@ function RulDefDataTables() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
 
-  const { ruleId, auditType } = useParams();
-
   // Fetch data from the API when the component mounts
   useEffect(() => {
     const fetchData = async () => {
-      // const ruleId = "5033";
-      // const auditType = "MEASURE";
+      const ruleId = "5033";
+      const auditType = "MEASURE";
       const basicAuth = "Basic " + btoa("Administrator:manageaudit");
 
       try {
@@ -315,4 +312,4 @@ function RulDefDataTables() {
   );
 }
 
-export default RulDefDataTables;
+export default RuleDefinition;
