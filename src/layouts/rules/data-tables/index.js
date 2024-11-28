@@ -47,6 +47,9 @@ function DataTables() {
     rows: [],
   });
 
+  const [isEditMode, setIsEditMode] = useState(false); // To track if in edit mode
+  const [currentEditRow, setCurrentEditRow] = useState(null); // To store data of the row being edited
+
   const [openModal, setOpenModal] = useState(false);
   const [formData, setFormData] = useState({
     ruleName: "",
@@ -99,7 +102,7 @@ function DataTables() {
           options: (
             <>
               <IoMdSettings /> <FaArrowUp />
-              <EditIcon style={{ cursor: "pointer" }} />
+              <EditIcon style={{ cursor: "pointer" }} onClick={() => handleEditClick(rule)} />
               <DeleteIcon></DeleteIcon>
             </>
           ),
@@ -173,9 +176,55 @@ function DataTables() {
     }
   }, [formData.useCalendar]);
 
+  // Function to handle clicking on the edit icon
+  const handleEditClick = (row) => {
+    setIsEditMode(true); // Set modal to edit mode
+    setCurrentEditRow(row); // Store row data to prepopulate form
+    setFormData({
+      ruleName: row.ruleName, // Extract text from Link component
+      monitoredAuditsId: "",
+      executeOn: row.executeOn,
+      doRemind: row.doRemind,
+      useCalendar: row.useCalendar,
+      calandarName: row.calandarName || "",
+      isActive: row.isActive,
+    });
+    setOpenModal(true); // Open the modal
+  };
+
+  // Function to handle submitting edited data
+  const handleUpdate = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch(`http://172.20.150.134:5555/rules/rule`, {
+        method: "PUT", // Use PUT for updates
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        alert("Rule updated successfully!");
+        handleCloseModal();
+        setIsEditMode(false); // Exit edit mode
+        // Optionally, refresh table data
+      } else {
+        alert("Failed to update rule!");
+      }
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
+  };
+
   const handleOpenModal = () => setOpenModal(true);
 
-  const handleCloseModal = () => setOpenModal(false);
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    if (isEditMode === true) {
+      setIsEditMode(false);
+    }
+  };
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -216,10 +265,10 @@ function DataTables() {
     setFormData({
       ruleName: "",
       monitoredAuditsId: "",
-      executeOn: "",
-      doRemind: "",
-      useCalendar: "",
-      ruleIsActive: "",
+      executeOn: "TRANSITION",
+      doRemind: "FALSE",
+      useCalendar: "FALSE",
+      ruleIsActive: "TRUE",
     });
   };
 
@@ -245,7 +294,7 @@ function DataTables() {
 
       {/* Modal */}
       <Dialog open={openModal} onClose={handleCloseModal} fullWidth>
-        <DialogTitle></DialogTitle>
+        <DialogTitle>{isEditMode ? "Edit Rule" : "Add New Rule"}</DialogTitle>
         <DialogContent>
           <TextField
             label="Rule Name"
@@ -365,12 +414,19 @@ function DataTables() {
           </TextField>
         </DialogContent>
         <DialogActions>
-          <MDButton variant="gradient" color="info" onClick={handleSubmit}>
-            Save
+          <MDButton
+            variant="gradient"
+            color="info"
+            onClick={isEditMode ? handleUpdate : handleSubmit}
+          >
+            {isEditMode ? "Update" : "Save"}
           </MDButton>
-          <MDButton variant="outlined" color="secondary" onClick={handleReset}>
-            Reset
-          </MDButton>
+          {!isEditMode && (
+            <MDButton variant="outlined" color="secondary" onClick={handleReset}>
+              Reset
+            </MDButton>
+          )}
+
           <MDButton variant="outlined" color="error" onClick={handleCloseModal}>
             Cancel
           </MDButton>
