@@ -195,6 +195,16 @@ function DataTables() {
   // Function to handle submitting edited data
   const handleUpdate = async () => {
     const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    const payload = {
+      ruleName: formData.ruleName,
+      monitoredAuditsId: formData.monitoredAuditsId,
+      ruleIsActive: formData.ruleIsActive === "TRUE",
+      execution: formData.executeOn,
+      doRemind: formData.doRemind === "TRUE",
+      useCalandar: formData.useCalendar === "TRUE",
+      calandarName: formData.calandarName || "",
+      ...(isEditMode && { ruleId: currentEditRow.ruleId }), // Include ruleId only in edit mode
+    };
     try {
       const response = await fetch(`http://172.20.150.134:5555/rules/rule`, {
         method: "PUT", // Use PUT for updates
@@ -202,7 +212,8 @@ function DataTables() {
           Authorization: basicAuth,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        //body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       if (response.ok) {
         alert("Rule updated successfully!");
