@@ -67,6 +67,7 @@ import SignUpCover from "layouts/authentication/sign-up/cover";
 import ResetCover from "layouts/authentication/reset-password/cover";
 import Feeds from "layouts/pages/feeds";
 import Monitors from "layouts/pages/monitors";
+import ConfigurationHomePage from "layouts/pages/configuration";
 
 // Material Dashboard 2 PRO React components
 import MDAvatar from "components/MDAvatar";
@@ -76,6 +77,8 @@ import Icon from "@mui/material/Icon";
 
 // Images
 import profilePicture from "assets/images/team-3.jpg";
+import Templates from "layouts/pages/templates";
+import GroupConfig from "layouts/pages/group-config";
 
 const routes = [
   {
@@ -249,21 +252,27 @@ const routes = [
     icon: <Icon fontSize="medium">image</Icon>,
     collapse: [
       {
-        name: "Configurations",
-        key: "Configurations",
-        route: "/pages/pricing-page",
-        component: <PricingPage />,
+        name: "Configuration",
+        key: "Configuration",
+        route: "/pages/configuration",
+        component: <ConfigurationHomePage />,
       },
 
       {
         name: "Templates",
         key: "Templates",
-        route: "/pages/notifications",
-        component: <Notifications />,
+        route: "/pages/templates",
+        component: <Templates />,
       },
       {
-        name: "Group Config",
-        key: "Group Config",
+        name: "GroupConfig",
+        key: "GroupConfig",
+        route: "/pages/group-config",
+        component: <GroupConfig />,
+      },
+      {
+        name: "User Calendar",
+        key: "User Calendar",
         route: "/pages/charts",
         component: <Charts />,
       },

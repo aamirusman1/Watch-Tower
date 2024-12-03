@@ -29,6 +29,14 @@ import { FaEdit } from "react-icons/fa";
 //Material Icons
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ArrowUpward } from "@mui/icons-material";
+import SettingsIcon from "@mui/icons-material/Settings";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import EventIcon from "@mui/icons-material/Event";
+
+import Tooltip from "@mui/material/Tooltip";
 
 import { Link } from "react-router-dom";
 
@@ -70,40 +78,59 @@ function DataTables() {
   useEffect(() => {
     const fetchData = async () => {
       const basicAuth = "Basic " + btoa("Administrator:manageaudit");
-
+      //"http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider.rules_.resources:rule/rule",
       try {
-        const response = await fetch(
-          "http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider.rules_.resources:rule/rule",
-          {
-            headers: {
-              Authorization: basicAuth,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch("http://172.20.150.134:5555/rules/rule", {
+          headers: {
+            Authorization: basicAuth,
+            "Content-Type": "application/json",
+          },
+        });
         const data = await response.json();
 
         const rows = data.auditorRules.map((rule) => ({
-          isViolated: rule.isViolated === "TRUE" ? "VIOLATED" : "OK",
+          isViolated:
+            rule.isViolated === "TRUE" ? (
+              <span style={{ color: "#f44335" }}>VIOLATED </span>
+            ) : (
+              <span style={{ color: "#4CAF50" }}>OK</span>
+            ),
           auditSystemName: rule.auditSystemName,
           ruleName: (
             <Link
               //to={`/ruleDefinition/data-tables`}
               to={`/ruleDefinition/data-tables/${rule.ruleId}/${rule.auditType}`}
-              style={{ textDecoration: "none", color: "blue" }}
+              style={{ textDecoration: "none", color: "#1A73E8" }}
             >
               {rule.ruleName}
             </Link>
           ),
 
-          isActive: rule.isActive === "TRUE" ? <FaCheck /> : <ImCross />,
-          executeOn: rule.executeOn,
+          isActive: rule.isActive === "TRUE" ? <CheckIcon /> : <CloseIcon />,
+          executeOn:
+            rule.executeOn === "TRANSITION" ? (
+              <Tooltip title="Transition">
+                <ShuffleIcon />
+              </Tooltip>
+            ) : (
+              <Tooltip title="Event">
+                <EventIcon />
+              </Tooltip>
+            ),
           calandarName: rule.calandarName,
           options: (
             <>
-              <IoMdSettings /> <FaArrowUp />
-              <EditIcon style={{ cursor: "pointer" }} onClick={() => handleEditClick(rule)} />
-              <DeleteIcon></DeleteIcon>
+              <SettingsIcon color="info" /> <ArrowUpward color="info" />
+              <EditIcon
+                color="info"
+                style={{ cursor: "pointer" }}
+                onClick={() => handleEditClick(rule)}
+              />
+              {/* <DeleteIcon></DeleteIcon> */}
+              <DeleteIcon
+                style={{ cursor: "pointer", color: "red" }}
+                onClick={() => handleDeleteClick(rule.ruleId)}
+              />
             </>
           ),
         }));
@@ -112,6 +139,7 @@ function DataTables() {
           ...prevData,
           rows: rows,
         }));
+        console.log("rows for rule:" + rows);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -228,6 +256,42 @@ function DataTables() {
     }
   };
 
+  const handleDeleteClick = async (ruleId) => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+
+    if (window.confirm("Are you sure you want to delete this rule?")) {
+      try {
+        const response = await fetch(`http://172.20.150.134:5555/rules/rule`, {
+          method: "DELETE",
+          headers: {
+            Authorization: basicAuth,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ruleId }), // Send ruleId in the body
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data.status);
+          if (data.status === "ERROR") {
+            alert("Child Rule Definition found. Cannot Delete Rule");
+          } else {
+            alert("Rule deleted successfully!");
+            // Refresh the data table by refetching the data
+            setDataTableData((prevData) => ({
+              ...prevData,
+              rows: prevData.rows.filter((row) => row.ruleId !== ruleId), // Remove the deleted row
+            }));
+          }
+        } else {
+          alert("Failed to delete rule!");
+        }
+      } catch (error) {
+        console.error("Error deleting rule:", error);
+      }
+    }
+  };
+
   const handleOpenModal = () => setOpenModal(true);
 
   const handleCloseModal = () => {
@@ -294,7 +358,13 @@ function DataTables() {
             </MDTypography>
           </MDBox>
           <MDBox width="13.2rem" ml="auto">
-            <MDButton variant="gradient" color="info" size="small" onClick={handleOpenModal}>
+            <MDButton
+              style={{ marginLeft: 80 }}
+              variant="gradient"
+              color="info"
+              size="medium"
+              onClick={handleOpenModal}
+            >
               Add Rule
             </MDButton>
           </MDBox>

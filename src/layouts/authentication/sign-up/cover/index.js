@@ -54,7 +54,7 @@ function Cover() {
     event.preventDefault();
 
     const api = axios.create({
-      baseURL: "http://172.20.150.134:5555",
+      baseURL: "http://172.20.150.134:555",
     });
 
     api
