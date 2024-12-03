@@ -78,7 +78,7 @@ import Icon from "@mui/material/Icon";
 // Images
 import profilePicture from "assets/images/team-3.jpg";
 import Templates from "layouts/pages/templates";
-import GroupConfig from "layouts/pages/group-config";
+import GroupConfig from "layouts/pages/groupconfig";
 
 const routes = [
   {
@@ -267,7 +267,7 @@ const routes = [
       {
         name: "GroupConfig",
         key: "GroupConfig",
-        route: "/pages/group-config",
+        route: "/pages/groupconfig",
         component: <GroupConfig />,
       },
       {

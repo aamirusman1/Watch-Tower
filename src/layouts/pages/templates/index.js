@@ -58,6 +58,9 @@ function Templates() {
     templateContents: "",
   });
 
+  //state to track the row being edited:
+  const [editingRow, setEditingRow] = useState(null);
+
   // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
@@ -71,29 +74,127 @@ function Templates() {
         });
         const data = await response.json();
 
-        const rows = data.templates.map((template) => ({
-          templateName: template.templateName,
-          templateType: template.templateType === "EMAIL" ? <EmailIcon /> : <SmsIcon />,
-          templateDescription: template.templateDescription,
-          templateContents: (
-            <MDButton
-              variant="outlined"
-              color="info"
-              size="small"
-              onClick={() => handleOpen(template.templateContents)}
-            >
-              View Content
-            </MDButton>
-          ),
+        // const rows = data.templates.map((template) => ({
+        //   templateName: template.templateName,
+        //   templateType: template.templateType === "EMAIL" ? <EmailIcon /> : <SmsIcon />,
+        //   templateDescription: template.templateDescription,
+        //   templateContents: (
+        //     <MDButton
+        //       variant="outlined"
+        //       color="info"
+        //       size="small"
+        //       onClick={() => handleOpen(template.templateContents)}
+        //     >
+        //       View Content
+        //     </MDButton>
+        //   ),
 
-          actions: (
-            <>
-              <EditIcon color="info" style={{ cursor: "pointer" }} />
-              {/* <DeleteIcon></DeleteIcon> */}
-              <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-            </>
-          ),
-        }));
+        //   actions: (
+        //     <>
+        //       <EditIcon color="info" style={{ cursor: "pointer" }} />
+        //       {/* <DeleteIcon></DeleteIcon> */}
+        //       <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
+        //     </>
+        //   ),
+        // }));
+
+        const rows = data.templates.map((template) => {
+          const isEditing = editingRow && editingRow.templateId === template.templateId;
+          console.log("isEditing: " + isEditing + " editingRow: " + editingRow);
+
+          return isEditing
+            ? {
+                templateName: (
+                  <TextField
+                    fullWidth
+                    name="templateName"
+                    value={editingRow.templateName}
+                    onChange={(e) =>
+                      setEditingRow((prev) => ({ ...prev, templateName: e.target.value }))
+                    }
+                  />
+                ),
+                templateType: (
+                  <TextField
+                    select
+                    fullWidth
+                    name="templateType"
+                    value={editingRow.templateType}
+                    onChange={(e) =>
+                      setEditingRow((prev) => ({ ...prev, templateType: e.target.value }))
+                    }
+                  >
+                    <MenuItem value="EMAIL">EMAIL</MenuItem>
+                    <MenuItem value="SMS">SMS</MenuItem>
+                  </TextField>
+                ),
+                templateDescription: (
+                  <TextField
+                    fullWidth
+                    name="templateDescription"
+                    value={editingRow.templateDescription}
+                    onChange={(e) =>
+                      setEditingRow((prev) => ({ ...prev, templateDescription: e.target.value }))
+                    }
+                  />
+                ),
+                templateContents: (
+                  <MDButton
+                    variant="outlined"
+                    color="info"
+                    size="small"
+                    onClick={() => handleOpen(editingRow.templateContents)}
+                  >
+                    View Content
+                  </MDButton>
+                ),
+                actions: (
+                  <>
+                    <MDButton
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      onClick={handleSaveRow}
+                    >
+                      Save
+                    </MDButton>
+                    <MDButton
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </MDButton>
+                  </>
+                ),
+              }
+            : {
+                templateName: template.templateName,
+                templateType: template.templateType === "EMAIL" ? <EmailIcon /> : <SmsIcon />,
+                templateDescription: template.templateDescription,
+                templateContents: (
+                  <MDButton
+                    variant="outlined"
+                    color="info"
+                    size="small"
+                    onClick={() => handleOpen(template.templateContents)}
+                  >
+                    View Content
+                  </MDButton>
+                ),
+                actions: (
+                  <>
+                    <EditIcon
+                      color="info"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleEditRow(template)}
+                    />
+                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
+                  </>
+                ),
+              };
+        });
 
         setDataTableData((prevData) => ({
           ...prevData,
@@ -161,6 +262,46 @@ function Templates() {
       }
     } catch (error) {
       console.error("Error saving template:", error);
+    }
+  };
+
+  const handleEditRow = (row) => {
+    console.log("Edit button clicked " + row);
+    setEditingRow({ row });
+    console.log("editingRow: " + editingRow);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRow(null);
+  };
+
+  const handleSaveRow = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch("http://172.20.150.134:5555/configuration/template", {
+        method: "PUT",
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          templateId: editingRow.templateId,
+          templateName: editingRow.templateName,
+          templateContents: editingRow.templateContents,
+          templateType: editingRow.templateType,
+          templateDescription: editingRow.templateDescription,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Template updated successfully!");
+        setEditingRow(null);
+        // Optionally, refetch data here to update the table.
+      } else {
+        alert("Failed to update template.");
+      }
+    } catch (error) {
+      console.error("Error updating template:", error);
     }
   };
 
