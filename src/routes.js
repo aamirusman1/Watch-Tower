@@ -54,7 +54,7 @@ import Kanban from "layouts/applications/kanban";
 import Wizard from "layouts/applications/wizard";
 import DataTables from "layouts/rules/data-tables";
 import RulDefDataTables from "layouts/ruleDefinition/data-tables";
-import Calendar from "layouts/applications/calendar";
+//import Calendar from "layouts/applications/calendar";
 import NewProduct from "layouts/ecommerce/products/new-product";
 import EditProduct from "layouts/ecommerce/products/edit-product";
 import ProductPage from "layouts/ecommerce/products/product-page";
@@ -79,6 +79,7 @@ import Icon from "@mui/material/Icon";
 import profilePicture from "assets/images/team-3.jpg";
 import Templates from "layouts/pages/templates";
 import GroupConfig from "layouts/pages/groupconfig";
+import Calendar from "layouts/pages/calendar";
 
 const routes = [
   {
@@ -128,7 +129,7 @@ const routes = [
       },
     ],
   },
-  { type: "title", title: "Pages", key: "title-pages" },
+  // { type: "title", title: "Pages", key: "title-pages" },
   {
     type: "collapse",
     name: "Feeds",
@@ -236,7 +237,6 @@ const routes = [
         route: "/rules/data-tables", //inside layout folder
         component: <DataTables />,
       },
-
       // {
       //   name: "Rule Definitions",
       //   key: "data-table",
@@ -245,6 +245,7 @@ const routes = [
       // },
     ],
   },
+
   {
     type: "collapse",
     name: "Configurations",
@@ -273,8 +274,8 @@ const routes = [
       {
         name: "User Calendar",
         key: "User Calendar",
-        route: "/pages/charts",
-        component: <Charts />,
+        route: "/pages/calendar",
+        component: <Calendar />,
       },
     ],
   },
