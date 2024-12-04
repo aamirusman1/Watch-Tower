@@ -58,6 +58,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
+import CalendarConfiguration from "layouts/pages/calendarConfiguration";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -206,6 +207,10 @@ export default function App() {
         <Route
           path="/ruleDefinition/data-tables/:ruleId/:auditType"
           element={<RulDefDataTables />}
+        />
+        <Route
+          path="/pages/calendarConfiguration/:calendarId"
+          element={<CalendarConfiguration />}
         />
         {/* <Route path="*" element={<Navigate to="/dashboards/analytics" />} /> */}
       </Routes>

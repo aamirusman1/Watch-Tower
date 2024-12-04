@@ -60,6 +60,7 @@ function Templates() {
 
   //state to track the row being edited:
   const [editingRow, setEditingRow] = useState(null);
+  const [editingId, setEditingId] = useState(null);
 
   // Fetch data from the API
   useEffect(() => {
@@ -101,14 +102,15 @@ function Templates() {
         const rows = data.templates.map((template) => {
           const isEditing = editingRow && editingRow.templateId === template.templateId;
           console.log("isEditing: " + isEditing + " editingRow: " + editingRow);
-
-          return isEditing
+          //return isEditing
+          return editingId === template.templateId
             ? {
                 templateName: (
                   <TextField
                     fullWidth
                     name="templateName"
-                    value={editingRow.templateName}
+                    defaultValue={editingRow.templateName}
+                    // value={editingRow.templateName}
                     onChange={(e) =>
                       setEditingRow((prev) => ({ ...prev, templateName: e.target.value }))
                     }
@@ -119,7 +121,8 @@ function Templates() {
                     select
                     fullWidth
                     name="templateType"
-                    value={editingRow.templateType}
+                    defaultValue={editingRow.templateType}
+                    // value={editingRow.templateType}
                     onChange={(e) =>
                       setEditingRow((prev) => ({ ...prev, templateType: e.target.value }))
                     }
@@ -132,7 +135,8 @@ function Templates() {
                   <TextField
                     fullWidth
                     name="templateDescription"
-                    value={editingRow.templateDescription}
+                    defaultValue={editingRow.templateDescription}
+                    // value={editingRow.templateDescription}
                     onChange={(e) =>
                       setEditingRow((prev) => ({ ...prev, templateDescription: e.target.value }))
                     }
@@ -206,7 +210,7 @@ function Templates() {
     };
 
     fetchData();
-  }, []);
+  }, [editingId]);
 
   // Function to handle modal open
   const handleOpen = (content) => {
@@ -269,12 +273,15 @@ function Templates() {
     console.log("Edit button clicked " + row);
     setEditingRow({ row });
     console.log("editingRow: " + editingRow);
+    setEditingId(row.templateId);
+    console.log("editId: " + editingId);
   };
 
   const handleCancelEdit = () => {
     setEditingRow(null);
   };
 
+  //Function to save edited row
   const handleSaveRow = async () => {
     const basicAuth = "Basic " + btoa("Administrator:manageaudit");
     try {

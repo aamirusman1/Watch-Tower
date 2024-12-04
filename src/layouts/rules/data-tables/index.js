@@ -64,8 +64,19 @@ function DataTables() {
     monitoredAuditsId: "",
     executeOn: "TRANSITION",
     doRemind: "FALSE",
-    useCalendar: "FALSE",
+    useCalandar: "FALSE",
     ruleIsActive: "TRUE",
+  });
+
+  const [editData, setEditData] = useState({
+    ruleName: "",
+    monitoredAuditsId: "",
+    executeOn: "",
+    doRemind: "",
+    useCalandar: "",
+    calandarName: "",
+    ruleIsActive: "",
+    ruleId: "",
   });
 
   //State to store monitors
@@ -75,76 +86,76 @@ function DataTables() {
   const [calendars, setCalendars] = useState([]);
 
   // Fetch data from the API
+  const fetchData = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    //"http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider.rules_.resources:rule/rule",
+    try {
+      const response = await fetch("http://172.20.150.134:5555/rules/rule", {
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+
+      const rows = data.auditorRules.map((rule) => ({
+        isViolated:
+          rule.isViolated === "TRUE" ? (
+            <span style={{ color: "#f44335" }}>VIOLATED </span>
+          ) : (
+            <span style={{ color: "#4CAF50" }}>OK</span>
+          ),
+        auditSystemName: rule.auditSystemName,
+        ruleName: (
+          <Link
+            //to={`/ruleDefinition/data-tables`}
+            to={`/ruleDefinition/data-tables/${rule.ruleId}/${rule.auditType}`}
+            style={{ textDecoration: "none", color: "#1A73E8" }}
+          >
+            {rule.ruleName}
+          </Link>
+        ),
+
+        isActive: rule.isActive === "TRUE" ? <CheckIcon /> : <CloseIcon />,
+        executeOn:
+          rule.executeOn === "TRANSITION" ? (
+            <Tooltip title="Transition">
+              <ShuffleIcon />
+            </Tooltip>
+          ) : (
+            <Tooltip title="Event">
+              <EventIcon />
+            </Tooltip>
+          ),
+        calandarName: rule.calandarName,
+        options: (
+          <>
+            <SettingsIcon color="info" /> <ArrowUpward color="info" />
+            <EditIcon
+              color="info"
+              style={{ cursor: "pointer" }}
+              onClick={() => handleEditClick(rule)}
+            />
+            {/* <DeleteIcon></DeleteIcon> */}
+            <DeleteIcon
+              style={{ cursor: "pointer", color: "red" }}
+              onClick={() => handleDeleteClick(rule.ruleId)}
+            />
+          </>
+        ),
+      }));
+
+      setDataTableData((prevData) => ({
+        ...prevData,
+        rows: rows,
+      }));
+      console.log("rows for rule:" + rows);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const basicAuth = "Basic " + btoa("Administrator:manageaudit");
-      //"http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider.rules_.resources:rule/rule",
-      try {
-        const response = await fetch("http://172.20.150.134:5555/rules/rule", {
-          headers: {
-            Authorization: basicAuth,
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-
-        const rows = data.auditorRules.map((rule) => ({
-          isViolated:
-            rule.isViolated === "TRUE" ? (
-              <span style={{ color: "#f44335" }}>VIOLATED </span>
-            ) : (
-              <span style={{ color: "#4CAF50" }}>OK</span>
-            ),
-          auditSystemName: rule.auditSystemName,
-          ruleName: (
-            <Link
-              //to={`/ruleDefinition/data-tables`}
-              to={`/ruleDefinition/data-tables/${rule.ruleId}/${rule.auditType}`}
-              style={{ textDecoration: "none", color: "#1A73E8" }}
-            >
-              {rule.ruleName}
-            </Link>
-          ),
-
-          isActive: rule.isActive === "TRUE" ? <CheckIcon /> : <CloseIcon />,
-          executeOn:
-            rule.executeOn === "TRANSITION" ? (
-              <Tooltip title="Transition">
-                <ShuffleIcon />
-              </Tooltip>
-            ) : (
-              <Tooltip title="Event">
-                <EventIcon />
-              </Tooltip>
-            ),
-          calandarName: rule.calandarName,
-          options: (
-            <>
-              <SettingsIcon color="info" /> <ArrowUpward color="info" />
-              <EditIcon
-                color="info"
-                style={{ cursor: "pointer" }}
-                onClick={() => handleEditClick(rule)}
-              />
-              {/* <DeleteIcon></DeleteIcon> */}
-              <DeleteIcon
-                style={{ cursor: "pointer", color: "red" }}
-                onClick={() => handleDeleteClick(rule.ruleId)}
-              />
-            </>
-          ),
-        }));
-
-        setDataTableData((prevData) => ({
-          ...prevData,
-          rows: rows,
-        }));
-        console.log("rows for rule:" + rows);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
     fetchData();
   }, []);
 
@@ -199,23 +210,35 @@ function DataTables() {
       }
     };
 
-    if (formData.useCalendar === "TRUE") {
+    if (formData.useCalandar === "TRUE" || editData.useCalandar === "TRUE") {
       fetchCalendars(); // Fetch only if Use Calendar is TRUE
     }
-  }, [formData.useCalendar]);
+  }, [formData.useCalandar, editData.useCalandar]);
 
   // Function to handle clicking on the edit icon
   const handleEditClick = (row) => {
     setIsEditMode(true); // Set modal to edit mode
     setCurrentEditRow(row); // Store row data to prepopulate form
-    setFormData({
-      ruleName: row.ruleName, // Extract text from Link component
-      monitoredAuditsId: "",
+    console.log("row is: " + row);
+    // setFormData({
+    //   ruleName: row.ruleName, // Extract text from Link component
+    //   monitoredAuditsId: row.auditSystemName,
+    //   executeOn: row.executeOn,
+    //   doRemind: row.doRemind,
+    //   useCalendar: row.useCalendar,
+    //   calandarName: row.calandarName || "",
+    //   isActive: row.isActive,
+    // });
+
+    setEditData({
+      ruleName: row.ruleName,
+      monitoredAuditsId: row.auditId,
       executeOn: row.executeOn,
       doRemind: row.doRemind,
-      useCalendar: row.useCalendar,
+      useCalandar: row.useCalandar,
       calandarName: row.calandarName || "",
-      isActive: row.isActive,
+      ruleIsActive: row.isActive,
+      ruleId: row.ruleId,
     });
     setOpenModal(true); // Open the modal
   };
@@ -224,14 +247,15 @@ function DataTables() {
   const handleUpdate = async () => {
     const basicAuth = "Basic " + btoa("Administrator:manageaudit");
     const payload = {
-      ruleName: formData.ruleName,
-      monitoredAuditsId: formData.monitoredAuditsId,
-      ruleIsActive: formData.ruleIsActive === "TRUE",
-      execution: formData.executeOn,
-      doRemind: formData.doRemind === "TRUE",
-      useCalandar: formData.useCalendar === "TRUE",
-      calandarName: formData.calandarName || "",
-      ...(isEditMode && { ruleId: currentEditRow.ruleId }), // Include ruleId only in edit mode
+      ruleName: editData.ruleName,
+      monitoredAuditsId: editData.monitoredAuditsId,
+      ruleIsActive: editData.ruleIsActive,
+      execution: editData.executeOn,
+      doRemind: editData.doRemind,
+      useCalandar: editData.useCalandar,
+      calandarName: editData.calandarName || "",
+      ruleId: editData.ruleId,
+      //...(isEditMode && { ruleId: currentEditRow.ruleId }), // Include ruleId only in edit mode
     };
     try {
       const response = await fetch(`http://172.20.150.134:5555/rules/rule`, {
@@ -248,6 +272,7 @@ function DataTables() {
         handleCloseModal();
         setIsEditMode(false); // Exit edit mode
         // Optionally, refresh table data
+        fetchData();
       } else {
         alert("Failed to update rule!");
       }
@@ -278,6 +303,7 @@ function DataTables() {
           } else {
             alert("Rule deleted successfully!");
             // Refresh the data table by refetching the data
+            fetchData();
             setDataTableData((prevData) => ({
               ...prevData,
               rows: prevData.rows.filter((row) => row.ruleId !== ruleId), // Remove the deleted row
@@ -301,8 +327,24 @@ function DataTables() {
     }
   };
 
+  // const handleChange = (event) => {
+  //   setFormData({ ...formData, [event.target.name]: event.target.value });
+  // };
+
   const handleChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+
+    if (isEditMode) {
+      setEditData((prevEditData) => ({
+        ...prevEditData,
+        [name]: value,
+      }));
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -320,13 +362,14 @@ function DataTables() {
       if (response.ok) {
         alert("Rule added successfully!");
         handleCloseModal();
+        fetchData(); //To refresh (to see new changes without refresh)
         setFormData({
           ruleName: "",
           monitoredAuditsId: "",
-          executeOn: "",
-          doRemind: "",
-          useCalendar: "",
-          ruleIsActive: "",
+          executeOn: "TRANSITION",
+          doRemind: "FALSE",
+          useCalendar: "FALSE",
+          ruleIsActive: "TRUE",
         });
       } else {
         alert("Failed to add rule!");
@@ -380,7 +423,7 @@ function DataTables() {
           <TextField
             label="Rule Name"
             name="ruleName"
-            value={formData.ruleName}
+            value={isEditMode ? editData.ruleName : formData.ruleName}
             onChange={handleChange}
             fullWidth
             margin="dense"
@@ -388,7 +431,7 @@ function DataTables() {
           <TextField
             label="Monitor Feed"
             name="monitoredAuditsId"
-            value={formData.monitoredAuditsId}
+            value={isEditMode ? editData.monitoredAuditsId : formData.monitoredAuditsId}
             onChange={handleChange}
             select
             fullWidth
@@ -407,7 +450,7 @@ function DataTables() {
           <TextField
             label="Execute On"
             name="executeOn"
-            value={formData.executeOn}
+            value={isEditMode ? editData.executeOn : formData.executeOn}
             onChange={handleChange}
             select
             fullWidth
@@ -424,7 +467,7 @@ function DataTables() {
           <TextField
             label="Do Remind"
             name="doRemind"
-            value={formData.doRemind}
+            value={isEditMode ? editData.doRemind : formData.doRemind}
             onChange={handleChange}
             select
             fullWidth
@@ -440,8 +483,8 @@ function DataTables() {
           </TextField>
           <TextField
             label="Use Calendar"
-            name="useCalendar"
-            value={formData.useCalendar}
+            name="useCalandar"
+            value={isEditMode ? editData.useCalandar : formData.useCalendar}
             onChange={handleChange}
             select
             fullWidth
@@ -456,11 +499,33 @@ function DataTables() {
             <MenuItem value="TRUE">TRUE</MenuItem>
           </TextField>
           {/* Conditionally render Calendar Name dropdown */}
-          {formData.useCalendar === "TRUE" && (
+          {/* {formData.useCalendar === "TRUE" && (
+              <TextField
+                label="Calendar Name"
+                name="calandarName"
+                value={isEditMode ? editData.calandarName : formData.calandarName}
+                onChange={handleChange}
+                select
+                fullWidth
+                margin="dense"
+                InputProps={{
+                  style: { padding: "12px 10px" },
+                }}
+              >
+                {calendars.map((calendar) => (
+                  <MenuItem key={calendar.calendarId} value={calendar.calandarName}>
+                    {calendar.calandarName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )} */}
+
+          {/* Conditionally render Calendar Name dropdown */}
+          {(isEditMode ? editData.useCalandar === "TRUE" : formData.useCalandar === "TRUE") && (
             <TextField
               label="Calendar Name"
               name="calandarName"
-              value={formData.calandarName}
+              value={isEditMode ? editData.calandarName : formData.calandarName}
               onChange={handleChange}
               select
               fullWidth
@@ -476,10 +541,11 @@ function DataTables() {
               ))}
             </TextField>
           )}
+
           <TextField
             label="Active"
             name="ruleIsActive"
-            value={formData.ruleIsActive}
+            value={isEditMode ? editData.ruleIsActive : formData.ruleIsActive}
             onChange={handleChange}
             select
             fullWidth

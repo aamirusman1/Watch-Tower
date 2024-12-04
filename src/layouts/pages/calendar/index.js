@@ -72,7 +72,14 @@ function Calendar() {
 
         const rows =
           data.allCalandars?.map((calendar) => ({
-            calandarName: calendar.calandarName,
+            calandarName: (
+              <Link
+                to={`/pages/calendarConfiguration/${calendar.calandarId}`}
+                style={{ textDecoration: "none", color: "#1A73E8" }}
+              >
+                {calendar.calandarName}
+              </Link>
+            ),
             calandarTimeZone: calendar.calandarTimeZone,
             actions: (
               <>
