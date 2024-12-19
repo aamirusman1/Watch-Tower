@@ -71,20 +71,20 @@ function GradientLineChart({ icon, title, description, height, chart }) {
 
     const chartDatasets = chart.datasets
       ? chart.datasets.map((dataset) => ({
-        ...dataset,
-        tension: 0,
-        pointRadius: 0,
-        borderWidth: 4,
-        borderColor: colors[dataset.color]
-          ? colors[dataset.color || "dark"].main
-          : colors.dark.main,
-        fill: true,
-        maxBarThickness: 6,
-        backgroundColor: gradientChartLine(
-          chartElement.ctx,
-          colors[dataset.color] ? colors[dataset.color || "dark"].main : colors.dark.main
-        ),
-      }))
+          ...dataset,
+          tension: 0,
+          pointRadius: 0,
+          borderWidth: 4,
+          borderColor: colors[dataset.color]
+            ? colors[dataset.color || "dark"].main
+            : colors.dark.main,
+          fill: true,
+          maxBarThickness: 6,
+          backgroundColor: gradientChartLine(
+            chartElement.ctx,
+            colors[dataset.color] ? colors[dataset.color || "dark"].main : colors.dark.main
+          ),
+        }))
       : [];
 
     setChartData(configs(chart.labels || [], chartDatasets));

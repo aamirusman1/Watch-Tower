@@ -52,8 +52,8 @@ import Charts from "layouts/pages/charts";
 import Notifications from "layouts/pages/notifications";
 import Kanban from "layouts/applications/kanban";
 import Wizard from "layouts/applications/wizard";
-import DataTables from "layouts/rules/data-tables";
-import RulDefDataTables from "layouts/ruleDefinition/data-tables";
+import DataTables from "layouts/pages/rules";
+import RulDefDataTables from "layouts/pages/ruleDefinition";
 //import Calendar from "layouts/applications/calendar";
 import NewProduct from "layouts/ecommerce/products/new-product";
 import EditProduct from "layouts/ecommerce/products/edit-product";
@@ -80,6 +80,8 @@ import profilePicture from "assets/images/team-3.jpg";
 import Templates from "layouts/pages/templates";
 import GroupConfig from "layouts/pages/groupconfig";
 import Calendar from "layouts/pages/calendar";
+import Parameters from "layouts/pages/parameters";
+import RuleAction from "layouts/pages/ruleActions";
 
 const routes = [
   {
@@ -122,8 +124,8 @@ const routes = [
         component: <Analytics />,
       },
       {
-        name: "Sales",
-        key: "sales",
+        name: "Alerts",
+        key: "alerts",
         route: "/dashboards/sales",
         component: <Sales />,
       },
@@ -134,7 +136,7 @@ const routes = [
     type: "collapse",
     name: "Feeds",
     key: "Feeds",
-    icon: <Icon fontSize="medium">image</Icon>,
+    icon: <Icon fontSize="medium">books</Icon>,
     collapse: [
       // {
       //   name: "Profile",
@@ -229,12 +231,12 @@ const routes = [
     type: "collapse",
     name: "Rules",
     key: "Rules",
-    icon: <Icon fontSize="medium">image</Icon>,
+    icon: <Icon fontSize="medium">rule</Icon>,
     collapse: [
       {
         name: "Rules",
         key: "data-tables",
-        route: "/rules/data-tables", //inside layout folder
+        route: "/pages/rules/", //inside layout folder
         component: <DataTables />,
       },
       // {
@@ -243,6 +245,12 @@ const routes = [
       //   route: "/ruleDefinition/data-tables", //inside layout folder
       //   component: <RulDefDataTables />,
       // },
+      {
+        name: "Actions",
+        key: "data-tables",
+        route: "/pages/ruleActions/", //inside layout folder
+        component: <RuleAction />,
+      },
     ],
   },
 
@@ -250,7 +258,7 @@ const routes = [
     type: "collapse",
     name: "Configurations",
     key: "Configurations",
-    icon: <Icon fontSize="medium">image</Icon>,
+    icon: <Icon fontSize="medium">settings</Icon>,
     collapse: [
       {
         name: "Configuration",
@@ -288,8 +296,8 @@ const routes = [
       {
         name: "Parameters",
         key: "Parameters",
-        route: "/pages/pricing-page",
-        component: <PricingPage />,
+        route: "/pages/parameters",
+        component: <Parameters />,
       },
     ],
   },

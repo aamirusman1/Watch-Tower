@@ -18,13 +18,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
-//React Icons
-import { RxCross2 } from "react-icons/rx";
-import { FaCheck } from "react-icons/fa6";
-import { ImCross } from "react-icons/im";
-import { IoMdSettings } from "react-icons/io";
-import { FaArrowUp } from "react-icons/fa6";
-import { FaEdit } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 //Material Icons
 import EditIcon from "@mui/icons-material/Edit";
@@ -85,6 +79,8 @@ function DataTables() {
   // State to store calendar data
   const [calendars, setCalendars] = useState([]);
 
+  const navigate = useNavigate();
+
   // Fetch data from the API
   const fetchData = async () => {
     const basicAuth = "Basic " + btoa("Administrator:manageaudit");
@@ -109,7 +105,7 @@ function DataTables() {
         ruleName: (
           <Link
             //to={`/ruleDefinition/data-tables`}
-            to={`/ruleDefinition/data-tables/${rule.ruleId}/${rule.auditType}`}
+            to={`/rules/ruleDefinition/${rule.ruleId}/${rule.auditType}`}
             style={{ textDecoration: "none", color: "#1A73E8" }}
           >
             {rule.ruleName}
@@ -130,7 +126,13 @@ function DataTables() {
         calandarName: rule.calandarName,
         options: (
           <>
-            <SettingsIcon color="info" /> <ArrowUpward color="info" />
+            <SettingsIcon
+              color="info"
+              style={{ cursor: "pointer" }}
+              onClick={() => handleSettingsClick(rule)}
+            />
+
+            <ArrowUpward color="info" />
             <EditIcon
               color="info"
               style={{ cursor: "pointer" }}
@@ -214,6 +216,11 @@ function DataTables() {
       fetchCalendars(); // Fetch only if Use Calendar is TRUE
     }
   }, [formData.useCalandar, editData.useCalandar]);
+
+  const handleSettingsClick = (rule) => {
+    navigate(`/rules/ruleActions/${rule.ruleId}/${rule.ruleName}`);
+    console.log("settings clicked: ");
+  };
 
   // Function to handle clicking on the edit icon
   const handleEditClick = (row) => {
@@ -484,7 +491,7 @@ function DataTables() {
           <TextField
             label="Use Calendar"
             name="useCalandar"
-            value={isEditMode ? editData.useCalandar : formData.useCalendar}
+            value={isEditMode ? editData.useCalandar : formData.useCalandar}
             onChange={handleChange}
             select
             fullWidth

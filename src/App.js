@@ -45,12 +45,14 @@ import createCache from "@emotion/cache";
 
 // Material Dashboard 2 PRO React routes
 import routes from "routes";
+import Monitors from "layouts/pages/monitors";
+import MonitorCondition from "layouts/pages/monitorCondition";
 
 // Material Dashboard 2 PRO React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
 //RuleDefinition
-import RulDefDataTables from "layouts/ruleDefinition/data-tables";
+import RulDefDataTables from "layouts/pages/ruleDefinition";
 
 //Router
 import { BrowserRouter as Router } from "react-router-dom";
@@ -59,6 +61,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 import CalendarConfiguration from "layouts/pages/calendarConfiguration";
+import RuleAction from "layouts/pages/ruleActions";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -175,10 +178,13 @@ export default function App() {
         <Routes>
           {getRoutes(routes)}
           <Route path="/" element={<Navigate to="/dashboards/analytics" />} />
+          <Route path="rules/ruleDefinition/:ruleId/:auditType" element={<RulDefDataTables />} />
           <Route
-            path="/ruleDefinition/data-tables/:ruleId/:auditType"
-            element={<RulDefDataTables />}
-          />
+            path="/rules/ruleActions/:ruleId/:ruleName"
+            element={<RuleAction></RuleAction>}
+          ></Route>
+          <Route path="/monitors/:feedId" element={<Monitors />} />
+          <Route path="/monitorConditions/:auditId" element={<MonitorCondition />} />
           {/* <Route path="*" element={<Navigate to="/dashboards/analytics" />} /> */}
         </Routes>
       </ThemeProvider>
@@ -204,14 +210,14 @@ export default function App() {
       <Routes>
         {getRoutes(routes)}
         <Route path="/" element={<Navigate to="/dashboards/analytics" />} />
-        <Route
-          path="/ruleDefinition/data-tables/:ruleId/:auditType"
-          element={<RulDefDataTables />}
-        />
+        <Route path="rules/ruleDefinition/:ruleId/:auditType" element={<RulDefDataTables />} />
+        <Route path="/rules/ruleActions/:ruleId/:ruleName" element={<RuleAction />}></Route>
         <Route
           path="/pages/calendarConfiguration/:calendarId"
           element={<CalendarConfiguration />}
         />
+        <Route path="/monitors/:feedId" element={<Monitors />} />
+        <Route path="/monitorConditions/:auditId" element={<MonitorCondition />} />
         {/* <Route path="*" element={<Navigate to="/dashboards/analytics" />} /> */}
       </Routes>
     </ThemeProvider>

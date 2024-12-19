@@ -40,22 +40,22 @@ function SalesTable({ title, rows, shadow }) {
     Object.entries(row).map(([cellTitle, cellContent]) =>
       Array.isArray(cellContent)
         ? tableRows.push(
-          <SalesTableCell
-            key={cellContent[1]}
-            title={cellTitle}
-            content={cellContent[1]}
-            image={cellContent[0]}
-            noBorder={key === rows.length - 1}
-          />
-        )
+            <SalesTableCell
+              key={cellContent[1]}
+              title={cellTitle}
+              content={cellContent[1]}
+              image={cellContent[0]}
+              noBorder={key === rows.length - 1}
+            />
+          )
         : tableRows.push(
-          <SalesTableCell
-            key={cellContent}
-            title={cellTitle}
-            content={cellContent}
-            noBorder={key === rows.length - 1}
-          />
-        )
+            <SalesTableCell
+              key={cellContent}
+              title={cellTitle}
+              content={cellContent}
+              noBorder={key === rows.length - 1}
+            />
+          )
     );
 
     return <TableRow key={rowKey}>{tableRows}</TableRow>;

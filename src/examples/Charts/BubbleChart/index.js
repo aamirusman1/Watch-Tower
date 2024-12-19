@@ -41,18 +41,18 @@ ChartJS.register(LinearScale, PointElement, Tooltip, Legend);
 function BubbleChart({ icon, title, description, height, chart }) {
   const chartDatasets = chart.datasets
     ? chart.datasets.map((dataset) => ({
-      ...dataset,
-      tension: 0.4,
-      borderWidth: 3,
-      pointRadius: 2,
-      backgroundColor: colors[dataset.color]
-        ? colors[dataset.color || "dark"].main
-        : colors.dark.main,
-      borderColor: colors[dataset.color]
-        ? colors[dataset.color || "dark"].main
-        : colors.dark.main,
-      maxBarThickness: 6,
-    }))
+        ...dataset,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 2,
+        backgroundColor: colors[dataset.color]
+          ? colors[dataset.color || "dark"].main
+          : colors.dark.main,
+        borderColor: colors[dataset.color]
+          ? colors[dataset.color || "dark"].main
+          : colors.dark.main,
+        maxBarThickness: 6,
+      }))
     : [];
 
   const { data, options } = configs(chart.labels || [], chartDatasets);

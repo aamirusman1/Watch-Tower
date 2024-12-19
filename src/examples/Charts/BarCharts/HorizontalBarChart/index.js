@@ -49,16 +49,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 function HorizontalBarChart({ icon, title, description, height, chart }) {
   const chartDatasets = chart.datasets
     ? chart.datasets.map((dataset) => ({
-      ...dataset,
-      weight: 5,
-      borderWidth: 0,
-      borderRadius: 4,
-      backgroundColor: colors[dataset.color]
-        ? colors[dataset.color || "dark"].main
-        : colors.dark.main,
-      fill: false,
-      maxBarThickness: 35,
-    }))
+        ...dataset,
+        weight: 5,
+        borderWidth: 0,
+        borderRadius: 4,
+        backgroundColor: colors[dataset.color]
+          ? colors[dataset.color || "dark"].main
+          : colors.dark.main,
+        fill: false,
+        maxBarThickness: 35,
+      }))
     : [];
 
   const { data, options } = configs(chart.labels || [], chartDatasets);

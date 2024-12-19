@@ -27,6 +27,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
+import IconButton from "@mui/material/IconButton";
 
 import Tooltip from "@mui/material/Tooltip";
 
@@ -45,10 +46,6 @@ function GroupConfig() {
     rows: [],
   });
 
-  // State for modal visibility and content
-  //const [open, setOpen] = useState(false);
-  //const [modalContent, setModalContent] = useState("");
-
   // State for adding a new template
   const [openAddModal, setOpenAddModal] = useState(false);
   const [newGroupConfig, setNewGroupConfig] = useState({
@@ -58,46 +55,146 @@ function GroupConfig() {
     description: "",
   });
 
+  //state to track the row being edited:
+  const [editingRow, setEditingRow] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+
   // Fetch data from the API
+  const fetchData = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch("http://172.20.150.134:5555/configuration/groupConfig", {
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+
+      const rows = data.groupConfigs?.map((groupConfig) => {
+        //   groupConfigId: groupConfig.groupConfigId,
+        //   groupName: groupConfig.groupName,
+        //   groupValue: groupConfig.groupValue,
+        //   groupType: groupConfig.groupType,
+        //   description: groupConfig.description,
+        //   actions: (
+        //     <>
+        //       <EditIcon color="info" style={{ cursor: "pointer" }} />
+        //       {/* <DeleteIcon></DeleteIcon> */}
+        //       <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
+        //     </>
+        //   ),
+        // })) || [];
+
+        return editingId === groupConfig.groupConfigId
+          ? {
+              groupName: (
+                <TextField
+                  fullWidth
+                  name="groupName"
+                  value={editingRow.groupName}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, groupName: e.target.value }))
+                  }
+                />
+              ),
+              groupValue: (
+                <TextField
+                  fullWidth
+                  name="groupValue"
+                  value={editingRow.groupValue}
+                  // InputProps={{
+                  //   style: { padding: "12px 10px" },
+                  // }}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, groupValue: e.target.value }))
+                  }
+                />
+              ),
+              groupType: (
+                <TextField
+                  fullWidth
+                  name="groupType"
+                  value={editingRow.groupType}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, groupType: e.target.value }))
+                  }
+                />
+              ),
+              description: (
+                <TextField
+                  fullWidth
+                  name="description"
+                  value={editingRow.description}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, description: e.target.value }))
+                  }
+                />
+              ),
+              actions: (
+                <>
+                  <MDBox display="flex" gap={2}>
+                    <MDButton
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      onClick={handleSaveRow}
+                    >
+                      Save
+                    </MDButton>
+                    <MDButton
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </MDButton>
+                  </MDBox>
+                </>
+              ),
+            }
+          : {
+              groupConfigId: groupConfig.groupConfigId,
+              groupName: groupConfig.groupName,
+              groupValue: groupConfig.groupValue,
+              groupType: groupConfig.groupType,
+              description: groupConfig.description,
+              actions: (
+                <>
+                  <IconButton>
+                    <EditIcon
+                      color="info"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleEditRow(groupConfig)}
+                    />
+                  </IconButton>
+
+                  {/* <DeleteIcon></DeleteIcon> */}
+                  <IconButton>
+                    <DeleteIcon
+                      color="error"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleDeleteRow(groupConfig.groupConfigId)}
+                    />
+                  </IconButton>
+                </>
+              ),
+            };
+      });
+
+      setDataTableData((prevData) => ({
+        ...prevData,
+        rows: rows,
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const basicAuth = "Basic " + btoa("Administrator:manageaudit");
-      try {
-        const response = await fetch("http://172.20.150.134:5555/configuration/groupConfig", {
-          headers: {
-            Authorization: basicAuth,
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-
-        const rows =
-          data.groupConfigs?.map((groupConfig) => ({
-            groupConfigId: groupConfig.groupConfigId,
-            groupName: groupConfig.groupName,
-            groupValue: groupConfig.groupValue,
-            groupType: groupConfig.groupType,
-            description: groupConfig.description,
-            actions: (
-              <>
-                <EditIcon color="info" style={{ cursor: "pointer" }} />
-                {/* <DeleteIcon></DeleteIcon> */}
-                <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-              </>
-            ),
-          })) || [];
-
-        setDataTableData((prevData) => ({
-          ...prevData,
-          rows: rows,
-        }));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [editingId, editingRow]);
 
   // // Function to handle modal open
   // const handleOpen = (content) => {
@@ -148,11 +245,82 @@ function GroupConfig() {
         alert("Group Config saved successfully!");
         handleCloseAddModal();
         handleReset(); // Reset form after saving
+        fetchData();
       } else {
         alert("Failed to save Group Config.");
       }
     } catch (error) {
       console.error("Error saving Group Config:", error);
+    }
+  };
+
+  const handleEditRow = (row) => {
+    setEditingRow({ ...row });
+    setEditingId(row.groupConfigId);
+    console.log(" Edit clicked; editId: " + editingId + " editingRow: " + editingRow);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRow(null);
+    setEditingId(null);
+  };
+
+  //Function to save edited row
+  const handleSaveRow = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch("http://172.20.150.134:5555/configuration/groupConfig", {
+        method: "PUT",
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          groupConfigId: editingRow.groupConfigId,
+          groupName: editingRow.groupName,
+          groupValue: editingRow.groupValue,
+          groupType: editingRow.groupType,
+          description: editingRow.description,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Group Config updated successfully!");
+        setEditingRow(null);
+        setEditingId(null);
+        // Optionally, refetch data here to update the table.
+      } else {
+        alert("Failed to update Group Config.");
+      }
+    } catch (error) {
+      console.error("Error updating Group Config:", error);
+    }
+  };
+
+  // Function to handle the delete action
+  const handleDeleteRow = async (groupConfigId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this Group Config?");
+    if (!confirmDelete) return;
+
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch("http://172.20.150.134:5555/configuration/groupConfig", {
+        method: "DELETE",
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ groupConfigId }),
+      });
+
+      if (response.ok) {
+        alert("Group Config deleted successfully!");
+        fetchData(); // Refresh the data
+      } else {
+        alert("Failed to delete template.");
+      }
+    } catch (error) {
+      console.error("Error deleting template:", error);
     }
   };
 

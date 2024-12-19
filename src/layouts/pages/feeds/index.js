@@ -13,8 +13,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
-//import AddFeedPopup from "./AddFeedPopup";
-//import DeleteFeed from "./utils/DeleteFeed";
+import AddFeedPopup from "./AddFeedPopup";
+import DeleteFeed from "./utils/DeleteFeed";
 import { Switch } from "@mui/material";
 import MDButton from "components/MDButton";
 import { useNavigate } from "react-router-dom";
@@ -22,9 +22,9 @@ import { useNavigate } from "react-router-dom";
 function Feeds() {
   const [dataTableData, setDataTableData] = useState({
     columns: [
-      { Header: "Feed Name", accessor: "feedName" },
-      { Header: "Is Active", accessor: "isActive" },
-      { Header: "Action", accessor: "action" },
+      { Header: <span style={{ fontSize: "15px" }}>Feed Name</span>, accessor: "feedName" },
+      { Header: <span style={{ fontSize: "15px" }}>Is Active</span>, accessor: "isActive" },
+      { Header: <span style={{ fontSize: "15px" }}>Action</span>, accessor: "action" },
     ],
     rows: [],
   });
@@ -33,12 +33,12 @@ function Feeds() {
   const [feedStatus, setFeedStatus] = useState({});
   const navigate = useNavigate();
 
-  // const handleDeleteFeed = (deletedFeedId) => {
-  //   setDataTableData((prevData) => ({
-  //     ...prevData,
-  //     rows: prevData.rows.filter((row) => row.action.props.feedId !== deletedFeedId),
-  //   }));
-  // };
+  const handleDeleteFeed = (deletedFeedId) => {
+    setDataTableData((prevData) => ({
+      ...prevData,
+      rows: prevData.rows.filter((row) => row.action.props.feedId !== deletedFeedId),
+    }));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,6 +73,7 @@ function Feeds() {
               />
             ) : (
               <MDTypography
+                style={{ textDecoration: "none", color: "#1A73E8" }}
                 component="a"
                 href={`/monitors/${feed.regiseterFeedId}`}
                 onClick={(e) => {
@@ -148,7 +149,7 @@ function Feeds() {
                 <IconButton color="info" onClick={() => setEditingFeedId(feed.regiseterFeedId)}>
                   <EditIcon />
                 </IconButton>
-                {/* <DeleteFeed feedId={feed.regiseterFeedId} onDeleteSuccess={handleDeleteFeed} /> */}
+                <DeleteFeed feedId={feed.regiseterFeedId} onDeleteSuccess={handleDeleteFeed} />
               </MDBox>
             ),
         }));
@@ -199,10 +200,10 @@ function Feeds() {
       <MDBox pt={6} pb={3}>
         <Card>
           <MDBox p={3} display="flex" justifyContent="space-between" alignItems="center">
-            <MDTypography variant="h5" fontWeight="medium">
+            <MDTypography variant="h2" fontWeight="medium">
               Feeds
             </MDTypography>
-            {/* <AddFeedPopup
+            <AddFeedPopup
               onAddFeed={(newFeed) => {
                 setDataTableData((prevData) => ({
                   ...prevData,
@@ -242,7 +243,7 @@ function Feeds() {
                   ],
                 }));
               }}
-            /> */}
+            />
           </MDBox>
           <DataTable table={{ columns: dataTableData.columns, rows: dataTableData.rows }} />
         </Card>

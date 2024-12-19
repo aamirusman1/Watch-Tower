@@ -31,6 +31,7 @@ import SmsIcon from "@mui/icons-material/Sms";
 import Tooltip from "@mui/material/Tooltip";
 
 import { Link } from "react-router-dom";
+import { IconButton } from "@mui/material";
 
 function Templates() {
   // State to store the data from the API
@@ -49,6 +50,10 @@ function Templates() {
   const [open, setOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
 
+  //State to track edit content modal
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editingContent, setEditingContent] = useState(""); // Content being edited
+
   // State for adding a new template
   const [openAddModal, setOpenAddModal] = useState(false);
   const [newTemplate, setNewTemplate] = useState({
@@ -63,97 +68,97 @@ function Templates() {
   const [editingId, setEditingId] = useState(null);
 
   // Fetch data from the API
-  useEffect(() => {
-    const fetchData = async () => {
-      const basicAuth = "Basic " + btoa("Administrator:manageaudit");
-      try {
-        const response = await fetch("http://172.20.150.134:5555/configuration/template", {
-          headers: {
-            Authorization: basicAuth,
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
+  const fetchData = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch("http://172.20.150.134:5555/configuration/template", {
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
 
-        // const rows = data.templates.map((template) => ({
-        //   templateName: template.templateName,
-        //   templateType: template.templateType === "EMAIL" ? <EmailIcon /> : <SmsIcon />,
-        //   templateDescription: template.templateDescription,
-        //   templateContents: (
-        //     <MDButton
-        //       variant="outlined"
-        //       color="info"
-        //       size="small"
-        //       onClick={() => handleOpen(template.templateContents)}
-        //     >
-        //       View Content
-        //     </MDButton>
-        //   ),
+      // const rows = data.templates.map((template) => ({
+      //   templateName: template.templateName,
+      //   templateType: template.templateType === "EMAIL" ? <EmailIcon /> : <SmsIcon />,
+      //   templateDescription: template.templateDescription,
+      //   templateContents: (
+      //     <MDButton
+      //       variant="outlined"
+      //       color="info"
+      //       size="small"
+      //       onClick={() => handleOpen(template.templateContents)}
+      //     >
+      //       View Content
+      //     </MDButton>
+      //   ),
 
-        //   actions: (
-        //     <>
-        //       <EditIcon color="info" style={{ cursor: "pointer" }} />
-        //       {/* <DeleteIcon></DeleteIcon> */}
-        //       <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-        //     </>
-        //   ),
-        // }));
+      //   actions: (
+      //     <>
+      //       <EditIcon color="info" style={{ cursor: "pointer" }} />
+      //       {/* <DeleteIcon></DeleteIcon> */}
+      //       <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
+      //     </>
+      //   ),
+      // }));
 
-        const rows = data.templates.map((template) => {
-          const isEditing = editingRow && editingRow.templateId === template.templateId;
-          console.log("isEditing: " + isEditing + " editingRow: " + editingRow);
-          //return isEditing
-          return editingId === template.templateId
-            ? {
-                templateName: (
-                  <TextField
-                    fullWidth
-                    name="templateName"
-                    defaultValue={editingRow.templateName}
-                    // value={editingRow.templateName}
-                    onChange={(e) =>
-                      setEditingRow((prev) => ({ ...prev, templateName: e.target.value }))
-                    }
-                  />
-                ),
-                templateType: (
-                  <TextField
-                    select
-                    fullWidth
-                    name="templateType"
-                    defaultValue={editingRow.templateType}
-                    // value={editingRow.templateType}
-                    onChange={(e) =>
-                      setEditingRow((prev) => ({ ...prev, templateType: e.target.value }))
-                    }
-                  >
-                    <MenuItem value="EMAIL">EMAIL</MenuItem>
-                    <MenuItem value="SMS">SMS</MenuItem>
-                  </TextField>
-                ),
-                templateDescription: (
-                  <TextField
-                    fullWidth
-                    name="templateDescription"
-                    defaultValue={editingRow.templateDescription}
-                    // value={editingRow.templateDescription}
-                    onChange={(e) =>
-                      setEditingRow((prev) => ({ ...prev, templateDescription: e.target.value }))
-                    }
-                  />
-                ),
-                templateContents: (
-                  <MDButton
-                    variant="outlined"
-                    color="info"
-                    size="small"
-                    onClick={() => handleOpen(editingRow.templateContents)}
-                  >
-                    View Content
-                  </MDButton>
-                ),
-                actions: (
-                  <>
+      const rows = data.templates.map((template) => {
+        const isEditing = editingRow && editingRow.templateId === template.templateId;
+        console.log("isEditing: " + isEditing + " editingRow: " + editingRow);
+        //return isEditing
+        return editingId === template.templateId
+          ? {
+              templateName: (
+                <TextField
+                  fullWidth
+                  name="templateName"
+                  value={editingRow.templateName}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, templateName: e.target.value }))
+                  }
+                />
+              ),
+              templateType: (
+                <TextField
+                  select
+                  fullWidth
+                  name="templateType"
+                  value={editingRow.templateType}
+                  InputProps={{
+                    style: { padding: "12px 10px" },
+                  }}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, templateType: e.target.value }))
+                  }
+                >
+                  <MenuItem value="EMAIL">EMAIL</MenuItem>
+                  <MenuItem value="SMS">SMS</MenuItem>
+                </TextField>
+              ),
+              templateDescription: (
+                <TextField
+                  fullWidth
+                  name="templateDescription"
+                  value={editingRow.templateDescription}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, templateDescription: e.target.value }))
+                  }
+                />
+              ),
+              templateContents: (
+                <MDButton
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => handleOpenEditContentModal(editingRow.templateContents)}
+                >
+                  Edit Content
+                </MDButton>
+              ),
+              actions: (
+                <>
+                  <MDBox display="flex" gap={2}>
                     <MDButton
                       variant="outlined"
                       color="success"
@@ -170,47 +175,67 @@ function Templates() {
                     >
                       Cancel
                     </MDButton>
-                  </>
+                  </MDBox>
+                </>
+              ),
+            }
+          : {
+              templateName: template.templateName,
+              templateType:
+                template.templateType === "EMAIL" ? (
+                  <IconButton>
+                    <EmailIcon />
+                  </IconButton>
+                ) : (
+                  <IconButton>
+                    <SmsIcon />
+                  </IconButton>
                 ),
-              }
-            : {
-                templateName: template.templateName,
-                templateType: template.templateType === "EMAIL" ? <EmailIcon /> : <SmsIcon />,
-                templateDescription: template.templateDescription,
-                templateContents: (
-                  <MDButton
-                    variant="outlined"
-                    color="info"
-                    size="small"
-                    onClick={() => handleOpen(template.templateContents)}
-                  >
-                    View Content
-                  </MDButton>
-                ),
-                actions: (
-                  <>
+              templateDescription: template.templateDescription,
+              templateContents: (
+                <MDButton
+                  variant="outlined"
+                  color="info"
+                  size="small"
+                  onClick={() => handleOpen(template.templateContents)}
+                >
+                  View Content
+                </MDButton>
+              ),
+              actions: (
+                <>
+                  <IconButton>
                     <EditIcon
                       color="info"
                       style={{ cursor: "pointer" }}
                       onClick={() => handleEditRow(template)}
                     />
-                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-                  </>
-                ),
-              };
-        });
+                  </IconButton>
 
-        setDataTableData((prevData) => ({
-          ...prevData,
-          rows: rows,
-        }));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+                  <IconButton>
+                    <DeleteIcon
+                      color="error"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleDeleteRow(template.templateId)}
+                    />
+                  </IconButton>
+                </>
+              ),
+            };
+      });
 
+      setDataTableData((prevData) => ({
+        ...prevData,
+        rows: rows,
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [editingId]);
+  }, [editingId, editingRow]);
 
   // Function to handle modal open
   const handleOpen = (content) => {
@@ -221,12 +246,23 @@ function Templates() {
   // Function to handle modal close
   const handleClose = () => {
     setOpen(false);
-    setModalContent("");
+    //setModalContent("");
   };
 
   // Function to handle opening the add modal
   const handleOpenAddModal = () => setOpenAddModal(true);
   const handleCloseAddModal = () => setOpenAddModal(false);
+
+  //Function to open/close the edit content model
+  const handleOpenEditContentModal = (content) => {
+    setEditingContent(content);
+    setOpenEditModal(true);
+  };
+
+  const handleCloseEditContentModal = () => {
+    setOpenEditModal(false);
+    //setEditingContent("");
+  };
 
   // Function to handle input changes in the add modal
   const handleInputChange = (e) => {
@@ -270,15 +306,20 @@ function Templates() {
   };
 
   const handleEditRow = (row) => {
-    console.log("Edit button clicked " + row);
-    setEditingRow({ row });
-    console.log("editingRow: " + editingRow);
+    setEditingRow({ ...row });
     setEditingId(row.templateId);
-    console.log("editId: " + editingId);
+    console.log(" Edit clicked; editId: " + editingId + " editingRow: " + editingRow);
   };
 
   const handleCancelEdit = () => {
     setEditingRow(null);
+    setEditingId(null);
+  };
+
+  //Function to save edited content
+  const handleSaveEditedContent = () => {
+    setEditingRow((prev) => ({ ...prev, templateContents: editingContent }));
+    handleCloseEditContentModal();
   };
 
   //Function to save edited row
@@ -294,7 +335,7 @@ function Templates() {
         body: JSON.stringify({
           templateId: editingRow.templateId,
           templateName: editingRow.templateName,
-          templateContents: editingRow.templateContents,
+          templateContent: editingRow.templateContents,
           templateType: editingRow.templateType,
           templateDescription: editingRow.templateDescription,
         }),
@@ -303,12 +344,40 @@ function Templates() {
       if (response.ok) {
         alert("Template updated successfully!");
         setEditingRow(null);
+        setEditingId(null);
         // Optionally, refetch data here to update the table.
       } else {
         alert("Failed to update template.");
       }
     } catch (error) {
       console.error("Error updating template:", error);
+    }
+  };
+
+  // Function to handle the delete action
+  const handleDeleteRow = async (templateId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this template?");
+    if (!confirmDelete) return;
+
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch("http://localhost:5555/configuration/template", {
+        method: "DELETE",
+        headers: {
+          Authorization: basicAuth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ templateId }),
+      });
+
+      if (response.ok) {
+        alert("Template deleted successfully!");
+        fetchData(); // Refresh the data
+      } else {
+        alert("Failed to delete template.");
+      }
+    } catch (error) {
+      console.error("Error deleting template:", error);
     }
   };
 
@@ -409,6 +478,27 @@ function Templates() {
             Reset
           </MDButton>
           <MDButton onClick={handleCloseAddModal} variant="outlined" color="error">
+            Cancel
+          </MDButton>
+        </DialogActions>
+      </Dialog>
+      {/* Modal for editing template content */}
+      <Dialog open={openEditModal} onClose={handleCloseEditContentModal} fullWidth maxWidth="sm">
+        <DialogTitle>Edit Template Content</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            multiline
+            rows={10}
+            value={editingContent}
+            onChange={(e) => setEditingContent(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={handleSaveEditedContent} variant="gradient" color="info">
+            Save
+          </MDButton>
+          <MDButton onClick={handleCloseEditContentModal} variant="outlined" color="secondary">
             Cancel
           </MDButton>
         </DialogActions>

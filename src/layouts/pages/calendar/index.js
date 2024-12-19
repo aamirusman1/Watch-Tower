@@ -31,6 +31,8 @@ import SmsIcon from "@mui/icons-material/Sms";
 import Tooltip from "@mui/material/Tooltip";
 
 import { Link } from "react-router-dom";
+import { IconBase } from "react-icons";
+import { IconButton } from "@mui/material";
 
 function Calendar() {
   // State to store the data from the API
@@ -43,10 +45,6 @@ function Calendar() {
     rows: [],
   });
 
-  // State for modal visibility and content
-  //const [open, setOpen] = useState(false);
-  //const [modalContent, setModalContent] = useState("");
-
   // State for adding a new template
   const [openAddModal, setOpenAddModal] = useState(false);
   const [newCalendar, setNewCalendar] = useState({
@@ -54,53 +52,115 @@ function Calendar() {
     calandarTimeZone: "",
   });
 
+  //state to track the row being edited:
+  const [editingRow, setEditingRow] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+
   // Fetch data from the API
+  const fetchData = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch(
+        "http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider:ui/calendar/all",
+        {
+          headers: {
+            Authorization: basicAuth,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+
+      const rows = data.allCalandars?.map((calendar) => {
+        return editingId === calendar.calandarId
+          ? {
+              calandarName: (
+                <TextField
+                  fullWidth
+                  name="calandarName"
+                  value={editingRow.calandarName}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, calandarName: e.target.value }))
+                  }
+                />
+              ),
+              calandarTimeZone: (
+                <TextField
+                  fullWidth
+                  name="calandarTimeZone"
+                  value={editingRow.calandarTimeZone}
+                  onChange={(e) =>
+                    setEditingRow((prev) => ({ ...prev, calandarTimeZone: e.target.value }))
+                  }
+                />
+              ),
+              actions: (
+                <>
+                  <MDBox display="flex" gap={2}>
+                    <MDButton
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      onClick={handleSaveRow}
+                    >
+                      Save
+                    </MDButton>
+                    <MDButton
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </MDButton>
+                  </MDBox>
+                </>
+              ),
+            }
+          : {
+              calandarName: (
+                <Link
+                  to={`/pages/calendarConfiguration/${calendar.calandarId}`}
+                  style={{ textDecoration: "none", color: "#1A73E8" }}
+                >
+                  {calendar.calandarName}
+                </Link>
+              ),
+              calandarTimeZone: calendar.calandarTimeZone,
+              actions: (
+                <>
+                  <IconButton>
+                    <EditIcon
+                      color="info"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleEditRow(calendar)}
+                    />
+                  </IconButton>
+
+                  <IconButton>
+                    <DeleteIcon
+                      color="error"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleDeleteRow(calendar.calandarId)}
+                    />
+                  </IconButton>
+                </>
+              ),
+            };
+      });
+
+      setDataTableData((prevData) => ({
+        ...prevData,
+        rows: rows,
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const basicAuth = "Basic " + btoa("Administrator:manageaudit");
-      try {
-        const response = await fetch(
-          "http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider:ui/calendar/all",
-          {
-            headers: {
-              Authorization: basicAuth,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await response.json();
-
-        const rows =
-          data.allCalandars?.map((calendar) => ({
-            calandarName: (
-              <Link
-                to={`/pages/calendarConfiguration/${calendar.calandarId}`}
-                style={{ textDecoration: "none", color: "#1A73E8" }}
-              >
-                {calendar.calandarName}
-              </Link>
-            ),
-            calandarTimeZone: calendar.calandarTimeZone,
-            actions: (
-              <>
-                <EditIcon color="info" style={{ cursor: "pointer" }} />
-                {/* <DeleteIcon></DeleteIcon> */}
-                <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-              </>
-            ),
-          })) || [];
-
-        setDataTableData((prevData) => ({
-          ...prevData,
-          rows: rows,
-        }));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [editingId, editingRow]);
 
   // Function to handle opening and closing the add modal
   const handleOpenAddModal = () => setOpenAddModal(true);
@@ -140,11 +200,86 @@ function Calendar() {
         alert("User Calendar saved successfully!");
         handleCloseAddModal();
         handleReset(); // Reset form after saving
+        fetchData();
       } else {
         alert("Failed to save User Calendar.");
       }
     } catch (error) {
       console.error("Error saving User Calendar:", error);
+    }
+  };
+
+  const handleEditRow = (row) => {
+    setEditingRow({ ...row });
+    setEditingId(row.calandarId);
+    console.log(" Edit clicked; editId: " + editingId + " editingRow: " + editingRow);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRow(null);
+    setEditingId(null);
+  };
+
+  //Function to save edited row
+  const handleSaveRow = async () => {
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch(
+        "http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider:ui/calendar/update",
+        {
+          method: "POST",
+          headers: {
+            Authorization: basicAuth,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            calandarId: editingRow.calandarId,
+            calandarName: editingRow.calandarName,
+            calandarTimeZone: editingRow.calandarTimeZone,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        alert("User Calendar updated successfully!");
+        setEditingRow(null);
+        setEditingId(null);
+        // Optionally, refetch data here to update the table.
+      } else {
+        alert("Failed to update User Calendar.");
+      }
+    } catch (error) {
+      console.error("Error updating User Calendar:", error);
+    }
+  };
+
+  // Function to handle the delete action
+  const handleDeleteRow = async (calandarId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this User Calendar?");
+    if (!confirmDelete) return;
+
+    const basicAuth = "Basic " + btoa("Administrator:manageaudit");
+    try {
+      const response = await fetch(
+        "http://172.20.150.134:5555/restv2/BInRestInterface.restful.provider:ui/calendar/delete",
+        {
+          method: "POST",
+          headers: {
+            Authorization: basicAuth,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ calandarId }),
+        }
+      );
+
+      if (response.ok) {
+        alert("User Calendar deleted successfully!");
+        fetchData(); // Refresh the data
+      } else {
+        alert("Failed to delete Calendar.");
+      }
+    } catch (error) {
+      console.error("Error deleting Calendar:", error);
     }
   };
 
@@ -160,7 +295,7 @@ function Calendar() {
           </MDBox>
           <MDBox width="13.2rem" ml="auto">
             <MDButton
-              style={{ marginLeft: 23 }}
+              style={{ marginLeft: 45 }}
               variant="gradient"
               color="info"
               size="medium"

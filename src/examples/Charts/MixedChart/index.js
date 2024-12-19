@@ -75,78 +75,78 @@ function MixedChart({ icon, title, description, height, chart }) {
 
     const chartDatasets = chart.datasets
       ? chart.datasets.map((dataset) => {
-        let finalConfigs;
+          let finalConfigs;
 
-        const defaultLine = {
-          ...dataset,
-          type: "line",
-          tension: 0,
-          borderWidth: 4,
-          pointRadius: 2,
-          pointBackgroundColor: colors[dataset.color]
-            ? colors[dataset.color || "dark"].main
-            : colors.dark.main,
-          borderColor: colors[dataset.color]
-            ? colors[dataset.color || "dark"].main
-            : colors.dark.main,
-          maxBarThickness: 6,
-        };
+          const defaultLine = {
+            ...dataset,
+            type: "line",
+            tension: 0,
+            borderWidth: 4,
+            pointRadius: 2,
+            pointBackgroundColor: colors[dataset.color]
+              ? colors[dataset.color || "dark"].main
+              : colors.dark.main,
+            borderColor: colors[dataset.color]
+              ? colors[dataset.color || "dark"].main
+              : colors.dark.main,
+            maxBarThickness: 6,
+          };
 
-        const gradientLine = {
-          ...dataset,
-          type: "line",
-          tension: 0,
-          pointRadius: 0,
-          borderWidth: 4,
-          borderColor: colors[dataset.color]
-            ? colors[dataset.color || "dark"].main
-            : colors.dark.main,
-          fill: true,
-          maxBarThickness: 6,
-          backgroundColor: gradientChartLine(
-            chartElement.ctx,
-            colors[dataset.color] ? colors[dataset.color || "dark"].main : colors.dark.main
-          ),
-        };
+          const gradientLine = {
+            ...dataset,
+            type: "line",
+            tension: 0,
+            pointRadius: 0,
+            borderWidth: 4,
+            borderColor: colors[dataset.color]
+              ? colors[dataset.color || "dark"].main
+              : colors.dark.main,
+            fill: true,
+            maxBarThickness: 6,
+            backgroundColor: gradientChartLine(
+              chartElement.ctx,
+              colors[dataset.color] ? colors[dataset.color || "dark"].main : colors.dark.main
+            ),
+          };
 
-        const bar = {
-          ...dataset,
-          type: "bar",
-          weight: 5,
-          borderWidth: 0,
-          borderRadius: 4,
-          backgroundColor: colors[dataset.color]
-            ? colors[dataset.color || "dark"].main
-            : colors.dark.main,
-          fill: false,
-          maxBarThickness: 35,
-        };
+          const bar = {
+            ...dataset,
+            type: "bar",
+            weight: 5,
+            borderWidth: 0,
+            borderRadius: 4,
+            backgroundColor: colors[dataset.color]
+              ? colors[dataset.color || "dark"].main
+              : colors.dark.main,
+            fill: false,
+            maxBarThickness: 35,
+          };
 
-        const thinBar = {
-          ...dataset,
-          type: "bar",
-          weight: 5,
-          borderWidth: 0,
-          borderRadius: 4,
-          backgroundColor: colors[dataset.color]
-            ? colors[dataset.color || "dark"].main
-            : colors.dark.main,
-          fill: false,
-          maxBarThickness: 10,
-        };
+          const thinBar = {
+            ...dataset,
+            type: "bar",
+            weight: 5,
+            borderWidth: 0,
+            borderRadius: 4,
+            backgroundColor: colors[dataset.color]
+              ? colors[dataset.color || "dark"].main
+              : colors.dark.main,
+            fill: false,
+            maxBarThickness: 10,
+          };
 
-        if (dataset.chartType === "default-line") {
-          finalConfigs = defaultLine;
-        } else if (dataset.chartType === "gradient-line") {
-          finalConfigs = gradientLine;
-        } else if (dataset.chartType === "thin-bar") {
-          finalConfigs = thinBar;
-        } else {
-          finalConfigs = bar;
-        }
+          if (dataset.chartType === "default-line") {
+            finalConfigs = defaultLine;
+          } else if (dataset.chartType === "gradient-line") {
+            finalConfigs = gradientLine;
+          } else if (dataset.chartType === "thin-bar") {
+            finalConfigs = thinBar;
+          } else {
+            finalConfigs = bar;
+          }
 
-        return { ...finalConfigs };
-      })
+          return { ...finalConfigs };
+        })
       : [];
 
     setChartData(configs(chart.labels || [], chartDatasets));
